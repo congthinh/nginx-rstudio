@@ -1,22 +1,34 @@
 # Mobivi NginX Docker file
 # Business Intelligence Department - Thinh Huynh
 # May 2016
-## Start with the official rocker image providing 'base R' 
-FROM nginx:1.9.6
+FROM nginx:1.9.15
 MAINTAINER Thinh Huynh "thinh.hc@mobivi.vn"
+
+#Add to sources.list
+RUN echo "deb http://archive.ubuntu.com/ubuntu/ xenial main universe" >> /etc/apt/sources.list
+
+RUN apt-get update && \ 
+apt-get upgrade -y
+
+RUN apt-get -y install wget tar ca-certificates
 
 # Install nginx:
 RUN which nginx || ( ps aux | grep nginx  | grep -v grep ) || apt-get install -y -q nginx
 
-RUN nginxlocationsdir="/etc/nginx/isplab_locations"
-RUN mkdir -p "$nginxlocationsdir"
+RUN mkdir -p /etc/nginx/isplab_locations
 
-ADD rstudio-server.conf /etc/nginx/isplab_locations
-ADD isplab-main.conf /etc/nginx/sites-available
+COPY rstudio-server.conf /etc/nginx/isplab_locations
+COPY isplab-main.conf /etc/nginx/sites-available
 
-RUN (cd "/etc/nginx/sites-enabled"; ln -s "../sites-available/isplab-main.conf" "isplab-main.conf"; unlink -s "/etc/nginx/sites-enabled/default")
+#RUN cd /etc/nginx/sites-enabled
+RUN ln -s /ect/nginx/sites-available/isplab-main.conf isplab-main.conf
+RUN ls /etc/nginx/sites-available
+#RUN unlink "/etc/nginx/sites-available/default"
 
-RUN service nginx reload || (echo "Error reloading nginx"; exit 1)
+#RUN service nginx reload || (echo "Error reloading nginx"; exit 1)
+
+RUN apt-get update && \ 
+apt-get upgrade -y
 
 ## Use s6 
 RUN wget -P /tmp/ https://github.com/just-containers/s6-overlay/releases/download/v1.11.0.1/s6-overlay-amd64.tar.gz \
