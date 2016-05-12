@@ -1,4 +1,4 @@
-# Mobivi R Docker file
+# Mobivi NginX Docker file
 # Business Intelligence Department - Thinh Huynh
 # May 2016
 ## Start with the official rocker image providing 'base R' 
