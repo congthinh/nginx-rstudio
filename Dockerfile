@@ -11,32 +11,30 @@ RUN which nginx || ( ps aux | grep nginx  | grep -v grep ) || apt-get install -y
 RUN nginxlocationsdir="/etc/nginx/isplab_locations"
 RUN mkdir -p "$nginxlocationsdir"
 
-RUN cat << EOF | sudo tee "${nginxlocationsdir}/rstudio-server.conf"
-    location /rstudio/ {
-      rewrite ^/rstudio/(.*)$ /\$1 break;
-      proxy_pass http://localhost:8787;
-      proxy_redirect http://localhost:8787/ \$scheme://\$host/rstudio/;
-      access_log /var/log/nginx/rstudio-access.log;
-      error_log  /var/log/nginx/rstudio-error.log;
-    }
+RUN cat << EOF >> "${nginxlocationsdir}/rstudio-server.conf" \
+    location /rstudio/ { \
+      rewrite ^/rstudio/(.*)$ /\$1 break; \
+      proxy_pass http://localhost:8787; \
+      proxy_redirect http://localhost:8787/ \$scheme://\$host/rstudio/; \
+      access_log /var/log/nginx/rstudio-access.log; \
+      error_log  /var/log/nginx/rstudio-error.log; \
+    } \
 EOF
 
 RUN isplab_nginx_main="/etc/nginx/sites-available/isplab-main.conf"
 RUN if [ ! -f "${isplab_nginx_main}" ]; then
-cat << EOF | sudo tee "${isplab_nginx_main}"
-  server {
-   listen 80 default_server;
-   index index.html;
-   root /var/www;
+RUN cat << EOF | sudo tee "${isplab_nginx_main}" \
+  server { \
+   listen 80 default_server; \
+   index index.html; \
+   root /var/www; \
+   include /etc/nginx/isplab_locations/*.conf; \
+} \
+EOF; fi
 
-   include /etc/nginx/isplab_locations/*.conf;
-}
-EOF
-fi
+RUN (cd "/etc/nginx/sites-enabled"; ln -s "../sites-available/isplab-main.conf" "isplab-main.conf"; unlink -s "/etc/nginx/sites-enabled/default")
 
-(cd "/etc/nginx/sites-enabled"; sudo ln -s "../sites-available/isplab-main.conf" "isplab-main.conf")
-
-sudo service nginx reload || (echo "Error reloading nginx"; exit 1)
+RUN service nginx reload || (echo "Error reloading nginx"; exit 1)
 
 EXPOSE 80 443
 
