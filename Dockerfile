@@ -27,9 +27,6 @@ RUN which nginx || ( ps aux | grep nginx  | grep -v grep ) || apt-get install -y
 
 #RUN service nginx reload || (echo "Error reloading nginx"; exit 1)
 
-RUN apt-get update && \ 
-apt-get upgrade -y
-
 ## Use s6 
 #RUN wget -P /tmp/ https://github.com/just-containers/s6-overlay/releases/download/v1.11.0.1/s6-overlay-amd64.tar.gz \
 #&& tar xzf /tmp/s6-overlay-amd64.tar.gz -C / 
@@ -39,4 +36,3 @@ apt-get upgrade -y
 #CMD ["/init"]
 
 COPY nginx.conf /etc/nginx/nginx.conf
-
