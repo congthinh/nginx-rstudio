@@ -7,10 +7,10 @@ MAINTAINER Thinh Huynh "thinh.hc@mobivi.vn"
 #Add to sources.list
 RUN echo "deb http://archive.ubuntu.com/ubuntu/ xenial main universe" >> /etc/apt/sources.list
 
+RUN apt-get -y install wget tar ca-certificates
+
 RUN apt-get update && \ 
 apt-get upgrade -y
-
-RUN apt-get -y install wget tar ca-certificates
 
 # Install nginx:
 RUN which nginx || ( ps aux | grep nginx  | grep -v grep ) || apt-get install -y -q nginx
